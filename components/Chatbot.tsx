@@ -111,7 +111,7 @@ export default function ChatBot({ carrito, total, esCombo = false, onClose }: Pr
         script.setAttribute("data-currency", "COP")
         script.setAttribute("data-api-key", process.env.NEXT_PUBLIC_BOLD_PUBLIC_KEY || "")
         script.setAttribute("data-integrity-signature", integritySignature)
-        script.setAttribute("data-redirection-url", "http://localhost:3000")
+        script.setAttribute("data-redirection-url", "https://factor-h-gvwa.vercel.app")
         script.setAttribute("data-description", esCombo ? `Combo ${form.nombre} ${form.apellido}` : `Pedido Factor H`)
         script.setAttribute("data-render-mode", "embedded")
         script.setAttribute("data-customer-data", JSON.stringify({
