@@ -3,11 +3,18 @@
 import { createContext, useContext, useState } from "react"
 import ChatBot from "./Chatbot"
 
+interface ProductoCombo {
+    nombre: string
+    precio: number
+    categoria: string
+}
+
 const CartContext = createContext<any>(null)
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
     const [items, setItems] = useState<any[]>([])
     const [showChat, setShowChat] = useState(false)
+    const [comboData, setComboData] = useState<{ productos: ProductoCombo[], total: number } | null>(null)
 
     const addToCart = (product: any) => {
         setItems((prev) => [...prev, product])
@@ -19,17 +26,38 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setItems(updated)
     }
 
+    const openChatWithCombo = (productos: ProductoCombo[], total: number) => {
+        setComboData({ productos, total })
+        setShowChat(true)
+    }
+
+    const handleClose = () => {
+        setShowChat(false)
+        setComboData(null)
+    }
+
     const total = items.reduce((acc, item) => {
         const price = Number(item.price.replace(/[^0-9]/g, ""))
         return acc + price
     }, 0)
 
+    const carritoParaChat = comboData
+        ? comboData.productos.map((p) => ({ nombre: p.nombre, precio: p.precio }))
+        : items.map((item) => ({
+            nombre: item.name,
+            precio: Number(item.price.replace(/[^0-9]/g, ""))
+        }))
+
+    const totalParaChat = comboData ? comboData.total : total
+
+    const esCombo = !!comboData
+
     return (
-        <CartContext.Provider value={{ addToCart }}>
+        <CartContext.Provider value={{ addToCart, openChatWithCombo }}>
             {children}
 
-            {/* Carrito — se oculta cuando el chat está abierto */}
-            {items.length > 0 && !showChat && (
+            {/* Carrito normal — se oculta cuando el chat está abierto */}
+            {items.length > 0 && !showChat && !comboData && (
                 <div className="fixed right-6 top-24 w-80 bg-card border border-border shadow-xl p-6 z-50">
                     <h3 className="font-serif text-lg mb-4">Carrito</h3>
 
@@ -64,15 +92,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 </div>
             )}
 
-            {/* Chatbot — al cerrarse vuelve a aparecer el carrito */}
+            {/* Chatbot — funciona tanto para carrito normal como para combo */}
             {showChat && (
                 <ChatBot
-                    carrito={items.map((item) => ({
-                        nombre: item.name,
-                        precio: Number(item.price.replace(/[^0-9]/g, ""))
-                    }))}
-                    total={total}
-                    onClose={() => setShowChat(false)}
+                    carrito={carritoParaChat}
+                    total={totalParaChat}
+                    esCombo={esCombo}
+                    onClose={handleClose}
                 />
             )}
         </CartContext.Provider>

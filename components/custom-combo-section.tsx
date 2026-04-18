@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Check } from "lucide-react"
+import { useCart } from "@/components/cart"
 
 const categories = [
   {
@@ -38,6 +39,8 @@ function formatPrice(price: number) {
 }
 
 export function CustomComboSection() {
+  const { openChatWithCombo } = useCart()
+
   const [selections, setSelections] = useState<Record<string, number | null>>({
     reloj: null,
     perfume: null,
@@ -65,11 +68,13 @@ export function CustomComboSection() {
 
   const isComplete = selectedItems.length === 3
 
-  const whatsappMessage = isComplete
-    ? `Hola! Quiero armar mi combo personalizado Factor H:%0A${selectedItems
-      .map((i) => `- ${i.category}: ${i.name}`)
-      .join("%0A")}%0ATotal: ${formatPrice(finalTotal)}`
-    : ""
+  const handleComprar = () => {
+    if (!isComplete) return
+    openChatWithCombo(
+      selectedItems.map((i) => ({ nombre: i.name, precio: i.price, categoria: i.category })),
+      finalTotal
+    )
+  }
 
   return (
     <section id="crea-tu-combo" className="relative py-24 md:py-32 bg-secondary">
@@ -148,10 +153,7 @@ export function CustomComboSection() {
             ) : (
               <div className="flex flex-col gap-3">
                 {selectedItems.map((item) => (
-                  <div
-                    key={item.category}
-                    className="flex items-center justify-between"
-                  >
+                  <div key={item.category} className="flex items-center justify-between">
                     <span className="text-xs font-sans tracking-[0.15em] text-muted-foreground">
                       {item.category}: <span className="text-foreground">{item.name}</span>
                     </span>
@@ -183,21 +185,15 @@ export function CustomComboSection() {
               </div>
             )}
 
-            <a
-              href={
-                isComplete
-                  ? `https://wa.me/573022726955?text=${whatsappMessage}`
-                  : undefined
-              }
-              target={isComplete ? "_blank" : undefined}
-              rel={isComplete ? "noopener noreferrer" : undefined}
+            <button
+              onClick={handleComprar}
               className={`mt-8 block w-full text-center py-4 text-[10px] font-sans tracking-[0.2em] transition-all duration-300 ${isComplete
                   ? "bg-primary text-primary-foreground hover:bg-gold-light cursor-pointer"
                   : "bg-border text-muted-foreground cursor-not-allowed"
                 }`}
             >
-              {isComplete ? "SOLICITAR POR WHATSAPP" : "COMPLETA TU COMBO"}
-            </a>
+              {isComplete ? "COMPRAR COMBO" : "COMPLETA TU COMBO"}
+            </button>
           </div>
         </div>
       </div>
