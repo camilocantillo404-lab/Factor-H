@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
 function genCode() {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -30,7 +30,7 @@ export default function ChatBot({ carrito, total, esCombo = false, onClose }: Pr
     const [codigo, setCodigo] = useState("")
     const [fecha, setFecha] = useState("")
     const [error, setError] = useState("")
-    const [integritySignature, setIntegritySignature] = useState("")
+    const [boldUrl, setBoldUrl] = useState("")
 
     const [form, setForm] = useState({
         nombre: "",
@@ -77,7 +77,7 @@ export default function ChatBot({ carrito, total, esCombo = false, onClose }: Pr
             })
 
             const data = await res.json()
-            if (data.integritySignature) setIntegritySignature(data.integritySignature)
+            if (data.boldUrl) setBoldUrl(data.boldUrl)
 
         } catch (e) {
             console.error(e)
@@ -85,52 +85,6 @@ export default function ChatBot({ carrito, total, esCombo = false, onClose }: Pr
 
         setPaso("listo")
     }
-
-    // Inyectar el botón de Bold cuando tengamos la firma
-    useEffect(() => {
-        if (paso !== "listo" || !integritySignature || !codigo) return
-
-        // Remover script anterior si existe
-        const old = document.getElementById("bold-btn-script")
-        if (old) old.remove()
-
-        // Cargar librería de Bold
-        const lib = document.getElementById("bold-lib")
-        if (!lib) {
-            const libScript = document.createElement("script")
-            libScript.id = "bold-lib"
-            libScript.src = "https://checkout.bold.co/library/boldPaymentButton.js"
-            document.head.appendChild(libScript)
-        }
-
-        // Crear script del botón Bold
-        const script = document.createElement("script")
-        script.id = "bold-btn-script"
-        script.setAttribute("data-bold-button", "dark-L")
-        script.setAttribute("data-order-id", codigo)
-        script.setAttribute("data-currency", "COP")
-        script.setAttribute("data-api-key", process.env.NEXT_PUBLIC_BOLD_PUBLIC_KEY || "")
-        script.setAttribute("data-integrity-signature", integritySignature)
-        script.setAttribute("data-redirection-url", "https://factor-h-gvwa.vercel.app")
-        script.setAttribute("data-description", esCombo ? `Combo ${form.nombre} ${form.apellido}` : `Pedido Factor H`)
-        script.setAttribute("data-render-mode", "embedded")
-        script.setAttribute("data-customer-data", JSON.stringify({
-            fullName: `${form.nombre} ${form.apellido}`,
-            phone: form.telefono,
-            dialCode: "+57"
-        }))
-        script.setAttribute("data-billing-address", JSON.stringify({
-            address: form.direccion,
-            country: "CO"
-        }))
-
-        const container = document.getElementById("bold-button-container")
-        if (container) {
-            container.innerHTML = ""
-            container.appendChild(script)
-        }
-
-    }, [paso, integritySignature, codigo])
 
     return (
         <div className="fixed bottom-6 right-6 w-80 bg-card border border-border shadow-xl z-[1001] overflow-hidden rounded-lg">
@@ -227,10 +181,20 @@ export default function ChatBot({ carrito, total, esCombo = false, onClose }: Pr
                             <p className="text-xs mt-2">Total: {formatCOP(total)} COP</p>
                             <p className="text-xs mt-1">Codigo: <code className="bg-background px-1 rounded font-mono">{codigo}</code></p>
                             <p className="text-xs mt-1 text-muted-foreground">{fecha}</p>
-                        </div>
 
-                        {/* Botón de Bold se inyecta aquí */}
-                        <div id="bold-button-container" className="mt-2"></div>
+                            {boldUrl ? (
+                                <a
+                                    href={boldUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-block mt-3 w-full text-center border border-primary text-primary py-2 text-xs tracking-widest hover:bg-primary hover:text-primary-foreground transition"
+                                >
+                                    PAGAR CON BOLD
+                                </a>
+                            ) : (
+                                <p className="text-xs text-red-500 mt-2">No se pudo generar el link de pago. Intenta de nuevo.</p>
+                            )}
+                        </div>
                     </>
                 )}
             </div>
