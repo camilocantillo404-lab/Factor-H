@@ -15,14 +15,14 @@ const combos = [
   {
     name: "Prestige",
     tag: "Clase en cada detalle",
-    price: "$300.000",
+    price: "$260.000",
     image: "/images/Combo 2.jpeg",
     items: "Patek Philippe Nautilus Blanc + Yves Saint Laurent y Eau De Parfum + Polo Ralph Lauren - CREMA/BLANCO",
   },
   {
     name: "Midnight Legacy",
     tag: "Sofisticación sin límites",
-    price: "$310.000",
+    price: "$265.000",
     image: "/images/Combo 3.jpeg",
     items: "Audemars Piguet Royal Oak Noir + Valentino Born in Roma Intense + Amiri Arts District - Blanca",
   },
