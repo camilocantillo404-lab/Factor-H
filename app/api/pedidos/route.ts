@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         const { codigo, nombre, apellido, direccion, telefono, productos, total, esCombo, nombreOrden } = body
 
         // Crear link de pago en Bold via API
-        const boldRes = await fetch("https://api.bold.co/online/link/v1", {
+        const boldRes = await fetch("https://payments.api.bold.co/online/link/v1", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
