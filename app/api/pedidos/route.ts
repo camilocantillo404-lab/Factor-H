@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { Resend } from "resend"
-import crypto from "crypto"
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,15 +14,27 @@ export async function POST(req: NextRequest) {
         const body = await req.json()
         const { codigo, nombre, apellido, direccion, telefono, productos, total, esCombo, nombreOrden } = body
 
-        // Generar firma de integridad para Bold
-        const secretKey = process.env.BOLD_SECRET_KEY!
-        const integrityString = `${codigo}${total}COP${secretKey}`
-        const integritySignature = crypto
-            .createHash("sha256")
-            .update(integrityString)
-            .digest("hex")
+        // Crear link de pago en Bold via API
+        const boldRes = await fetch("https://api.bold.co/online/link/v1", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `x-api-key ${process.env.NEXT_PUBLIC_BOLD_PUBLIC_KEY}`
+            },
+            body: JSON.stringify({
+                amount_type: "CLOSE",
+                amount: {
+                    total_amount: Math.round(total),
+                    currency: "COP"
+                },
+                description: esCombo ? `Combo ${nombre} ${apellido}` : `Pedido Factor H - ${codigo}`,
+                reference: codigo,
+                expiration_date: Date.now() * 1e6 + 86400 * 1e9
+            })
+        })
 
-            
+        const boldData = await boldRes.json()
+        const boldUrl = boldData?.payload?.url || null
 
         // Guardar en Supabase
         const { error } = await supabase.from("pedidos").insert([{
@@ -74,16 +85,11 @@ export async function POST(req: NextRequest) {
                             <strong>Total: $${Number(total).toLocaleString("es-CO")} COP</strong>
                         </p>
                     </div>
-                    <p style="color: #888; font-size: 13px; margin-top: 16px;">Estado: Pendiente de pago</p>
                 </div>
             `
         })
 
-        console.log("Firma generada:", integritySignature)
-        console.log("Codigo:", codigo)
-        console.log("Total:", total)
-
-        return NextResponse.json({ ok: true, integritySignature })
+        return NextResponse.json({ ok: true, boldUrl })
 
     } catch (err) {
         console.error(err)
