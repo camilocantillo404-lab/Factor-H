@@ -35,6 +35,7 @@ export default function ChatBot({ carrito, total, esCombo = false, onClose }: Pr
     const [form, setForm] = useState({
         nombre: "",
         apellido: "",
+        email: "",
         direccion: "",
         telefono: ""
     })
@@ -44,7 +45,7 @@ export default function ChatBot({ carrito, total, esCombo = false, onClose }: Pr
     }
 
     const handleSubmit = async () => {
-        if (!form.nombre || !form.apellido || !form.direccion || !form.telefono) {
+        if (!form.nombre || !form.apellido || !form.email || !form.direccion || !form.telefono) {
             setError("Por favor completa todos los campos.")
             return
         }
@@ -65,6 +66,7 @@ export default function ChatBot({ carrito, total, esCombo = false, onClose }: Pr
                     codigo: nuevoCodigo,
                     nombre: form.nombre,
                     apellido: form.apellido,
+                    email: form.email,
                     direccion: form.direccion,
                     telefono: form.telefono,
                     productos: carrito,
@@ -103,6 +105,12 @@ export default function ChatBot({ carrito, total, esCombo = false, onClose }: Pr
         script.setAttribute("data-integrity-signature", integritySignature)
         script.setAttribute("data-redirection-url", "https://factor-h-gvwa.vercel.app")
         script.setAttribute("data-description", esCombo ? `Combo ${form.nombre} ${form.apellido}` : "Pedido Factor H")
+        script.setAttribute("data-customer-data", JSON.stringify({
+            fullName: `${form.nombre} ${form.apellido}`,
+            email: form.email,
+            phone: form.telefono,
+            dialCode: "+57"
+        }))
 
         const container = document.getElementById("bold-button-container")
         if (container) {
@@ -158,6 +166,10 @@ export default function ChatBot({ carrito, total, esCombo = false, onClose }: Pr
                                 <input name="apellido" value={form.apellido} onChange={handleChange} placeholder="Perez" className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background" />
                             </div>
                             <div>
+                                <label className="text-xs text-muted-foreground mb-1 block">Correo electrónico</label>
+                                <input name="email" value={form.email} onChange={handleChange} placeholder="correo@email.com" type="email" className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background" />
+                            </div>
+                            <div>
                                 <label className="text-xs text-muted-foreground mb-1 block">Direccion de envio</label>
                                 <input name="direccion" value={form.direccion} onChange={handleChange} placeholder="Calle 123 # 45-67, Bogota" className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background" />
                             </div>
@@ -197,6 +209,7 @@ export default function ChatBot({ carrito, total, esCombo = false, onClose }: Pr
                             )}
 
                             <p className="text-xs text-muted-foreground mb-1">Cliente: {form.nombre} {form.apellido}</p>
+                            <p className="text-xs text-muted-foreground mb-1">Correo: {form.email}</p>
                             <p className="text-xs text-muted-foreground mb-1">Direccion: {form.direccion}</p>
                             <p className="text-xs text-muted-foreground mb-2">Telefono: {form.telefono}</p>
 

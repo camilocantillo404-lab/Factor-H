@@ -13,7 +13,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json()
-        const { codigo, nombre, apellido, direccion, telefono, productos, total, esCombo, nombreOrden } = body
+        const { codigo, nombre, apellido, email, direccion, telefono, productos, total, esCombo, nombreOrden } = body
 
         const secretKey = process.env.BOLD_SECRET_KEY!
         const integrityString = `${codigo}${Math.round(total)}COP${secretKey}`
@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
             codigo,
             nombre,
             apellido,
+            email,
             direccion,
             telefono,
             productos,
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
             from: "onboarding@resend.dev",
             to: process.env.TU_CORREO!,
             subject: `🛍️ Nuevo pedido ${codigo}`,
-            html: `<div style="font-family:sans-serif"><h2>Nuevo pedido ${codigo}</h2><p><strong>Cliente:</strong> ${nombre} ${apellido}</p><p><strong>Dirección:</strong> ${direccion}</p><p><strong>Teléfono:</strong> ${telefono}</p><ul>${productosHtml}</ul><p><strong>Total: $${Number(total).toLocaleString("es-CO")} COP</strong></p></div>`
+            html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto"><h2 style="color:#0C447C">Nuevo pedido recibido</h2><div style="background:#f5f5f5;padding:16px;border-radius:8px;margin-bottom:16px"><h3 style="margin:0 0 8px">Código de orden</h3><p style="font-size:20px;font-weight:bold;color:#0C447C;margin:0">${codigo}</p></div><div style="margin-bottom:16px"><h3>Datos del cliente</h3><p><strong>Nombre:</strong> ${nombre} ${apellido}</p><p><strong>Email:</strong> ${email}</p><p><strong>Dirección:</strong> ${direccion}</p><p><strong>Teléfono:</strong> ${telefono}</p></div><div style="margin-bottom:16px"><h3>Productos</h3><ul>${productosHtml}</ul></div><div style="background:#0C447C;color:white;padding:16px;border-radius:8px"><p style="margin:0;font-size:18px"><strong>Total: $${Number(total).toLocaleString("es-CO")} COP</strong></p></div><p style="color:#888;font-size:13px;margin-top:16px">Estado: Pendiente de pago</p></div>`
         })
 
         return NextResponse.json({ ok: true, integritySignature, codigo, total: Math.round(total) })
