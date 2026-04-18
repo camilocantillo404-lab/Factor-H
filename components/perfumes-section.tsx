@@ -224,7 +224,7 @@ const perfumes = [
   {
     name: "YVES SAINT LAURENT Y EAU DE PARFUM",
     price: "$139.900",
-    image: "/images/saint laurent.jpg",
+    image: "/images/Saint laurent.jpg",
     description: "L'essence de l'accomplissement. Un parfum intense et profond qui capture la fougue de l'homme qui ose accomplir ses rêves.",
     notes: {
       salida: "Manzana, Jengibre, Bergamota",
@@ -257,7 +257,7 @@ const perfumes = [
   {
     name: "GIORGIO ARMANI ARMANI CODE PARFUM",
     price: "$139.900",
-    image: "/images/Armani code.jpg",
+    image: "/images/armani code.jpg",
     description: "Reescribiendo el código. Una fragancia fuerte pero sensible que reinventa la firma olfativa del Armani Code original con un toque moderno.",
     notes: {
       salida: "Bergamota, Hojas de bergamota",
